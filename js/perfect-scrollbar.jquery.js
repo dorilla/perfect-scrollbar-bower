@@ -386,7 +386,8 @@ module.exports = {
   suppressScrollX: false,
   suppressScrollY: false,
   scrollXMarginOffset: 0,
-  scrollYMarginOffset: 0
+  scrollYMarginOffset: 0,
+  stopPropagationOnClick: true
 };
 
 },{}],9:[function(require,module,exports){
@@ -401,6 +402,10 @@ var d = require('../lib/dom')
 
 module.exports = function (element) {
   var i = instances.get(element);
+
+  if (!i) {
+    return;
+  }
 
   i.event.unbindAll();
   d.remove(i.scrollbarX);
@@ -428,7 +433,9 @@ function bindClickRailHandler(element, i) {
   }
   var stopPropagation = window.Event.prototype.stopPropagation.bind;
 
-  i.event.bind(i.scrollbarY, 'click', stopPropagation);
+  if (i.settings.stopPropagationOnClick) {
+    i.event.bind(i.scrollbarY, 'click', stopPropagation);
+  }
   i.event.bind(i.scrollbarYRail, 'click', function (e) {
     var halfOfScrollbarLength = h.toInt(i.scrollbarYHeight / 2);
     var positionTop = i.railYRatio * (e.pageY - window.scrollY - pageOffset(i.scrollbarYRail).top - halfOfScrollbarLength);
@@ -447,7 +454,9 @@ function bindClickRailHandler(element, i) {
     e.stopPropagation();
   });
 
-  i.event.bind(i.scrollbarX, 'click', stopPropagation);
+  if (i.settings.stopPropagationOnClick) {
+    i.event.bind(i.scrollbarX, 'click', stopPropagation);
+  }
   i.event.bind(i.scrollbarXRail, 'click', function (e) {
     var halfOfScrollbarLength = h.toInt(i.scrollbarXWidth / 2);
     var positionLeft = i.railXRatio * (e.pageX - window.scrollX - pageOffset(i.scrollbarXRail).left - halfOfScrollbarLength);
@@ -1427,6 +1436,10 @@ var d = require('../lib/dom')
 
 module.exports = function (element) {
   var i = instances.get(element);
+
+  if (!i) {
+    return;
+  }
 
   // Recalcuate negative scrollLeft adjustment
   i.negativeScrollAdjustment = i.isNegativeScroll ? element.scrollWidth - element.clientWidth : 0;
